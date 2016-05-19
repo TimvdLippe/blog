@@ -1,6 +1,6 @@
-# My experience with the Polymer `carbon-route`
+# My experience with the Polymer `app-route`
 
-At the time of writing, the Polymer [`carbon-route`](https://github.com/PolymerElements/carbon-route) is in beta.
+At the time of writing, the Polymer [`app-route`](https://github.com/PolymerElements/app-route) is in beta.
 This element is designed to allow Polymer elements data-bind to the url of
 the site.
 This blog post will describe some of the issues I encountered and depict
@@ -10,7 +10,7 @@ solutions for said issues.
 
 The first task was to replace the old [`page.js`](https://github.com/visionmedia/page.js)
 routing mechanism used in the [Polymer Starter Kit](https://github.com/PolymerElements/polymer-starter-kit)
-to the new `carbon-route` element.
+to the new `app-route` element.
 The two routing solutions have a significant different approach to how routing
 should be integrated into your application.
 `Page.js` required to have a single [`routing.html`](https://github.com/PolymerElements/polymer-starter-kit/blob/v1.3.0/app/elements/routing.html)
@@ -66,11 +66,11 @@ to now beforehand the inner structure of your pages. This lead to a convoluted
 `iron-pages` with complicated data-bindings to enable sharing information from a
 "parent" page to a sub-page.
 
-## 1. The first steps with `carbon-route`
+## 1. The first steps with `app-route`
 
 The section above shows the old solution with `page.js` and points out several
 problematic practices with building `Polymer` applications. Therefore I decided
-to use the new `carbon-route` element in my application.
+to use the new `app-route` element in my application.
 
 The very first task was to figure out how this element should be used. Previously,
 we invoked Javascript functions which were mapping to values in our `app`. Now,
@@ -85,15 +85,15 @@ Let's first define an `index.html` which has 3 routes: `home`, `store` and `user
 ```html
 <html>
 <head>
-  <link rel="import" href="bower_components/carbon-route/carbon-location.html">
-  <link rel="import" href="bower_components/carbon-route/carbon-route.html">
+  <link rel="import" href="bower_components/app-route/app-location.html">
+  <link rel="import" href="bower_components/app-route/app-route.html">
   <link rel="import" href="bower_components/iron-pages/iron-pages.html">
 </head>
 <body>
   <template is="dom-bind" id="app">
-    <carbon-location route="{{route}}"></carbon-location>
-    <carbon-route route="{{route}}" pattern="/:page"
-                  data="{{routeData}}"></carbon-route>
+    <app-location route="{{route}}"></app-location>
+    <app-route route="{{route}}" pattern="/:page"
+                  data="{{routeData}}"></app-route>
 
     <iron-pages selected="[[routeData.page]]"
                 attr-for-selected="data-route"
@@ -117,24 +117,24 @@ Let's first define an `index.html` which has 3 routes: `home`, `store` and `user
 </html>
 ```
 
-So what is going on here? First of all, we define a `<carbon-location>` which
+So what is going on here? First of all, we define a `<app-location>` which
 provides us a `route`. This route contains information about the current url.
-This `route` is then bound to the `route` property of `<carbon-route>`.
+This `route` is then bound to the `route` property of `<app-route>`.
 Then we define a pattern where we match on. The `:page` denotes that we define
 a variable path segment. Lastly, bind the `data` property to `routeData`.
 
 Now to the `<iron-pages>`. We bind its `selected` property to `routeData.page`.
 The `page` field of `routeData` is because we defined our variable in the
-`<carbon-route>` pattern as `:page`. If we would have called it `:data`, we would
+`<app-route>` pattern as `:page`. If we would have called it `:data`, we would
 need to use `routeData.data`.
 
-Given you load this page at `localhost:8080/`. The `route` of `<carbon-location>`
+Given you load this page at `localhost:8080/`. The `route` of `<app-location>`
 would contain the path `/`. This is matched with `/:page` and sets `routeData.page`
 to `""`. As a consequence, the first `<section>` is shown by `<iron-pages>`. Hooray,
 we have a homepage!
 
 Consequently, when we visit `localhost:8080/store` or `localhost:8080/users` we show
-the `<store-page>` or `<user-page>` respectively. If we enter an unmatching url,
+the `<store-page>` or `<user-page>` respectively. If we enter an non-matching url,
 for example `localhost:8080/asdf`, `<iron-pages>` will show the 404 section because
 we set `fallback-selection="404"`.
 
@@ -142,28 +142,28 @@ we set `fallback-selection="404"`.
 
 Now that we are able to show a page matching a certain url, I dove 1 level deeper:
 how to show a page inside another page. After some fiddling with various approaches,
-I figured out a good solution. `<carbon-route>` exposes a `tail` property which
+I figured out a good solution. `<app-route>` exposes a `tail` property which
 contains the remaining unmatched url segments. So how does it work?
 
-We update `<carbon-route>` to
+We update `<app-route>` to
 ```html
-<carbon-route route="{{route}}" pattern="/:page" data="{{routeData}}"
-              tail="{{tail}}"></carbon-route>
+<app-route route="{{route}}" pattern="/:page" data="{{routeData}}"
+              tail="{{tail}}"></app-route>
 ```
 and we update the `<store-page>` to
 ```html
 <store-page data-route="store" route="{{tail}}"></store-page>
 ```
 
-Inside `<store-page>` we define the following `<carbon-route>`
+Inside `<store-page>` we define the following `<app-route>`
 ```html
-<carbon-route route="{{route}}" pattern="/:store"
-              data="{{storeData}}" tail="{{subRoute}}"></carbon-route>
+<app-route route="{{route}}" pattern="/:store"
+              data="{{storeData}}" tail="{{subRoute}}"></app-route>
 ```
 
-What is going on here? We pass on the `tail` from the upper-level `<carbon-route>`
-and pass it on via the `<store-page>` to the sub level `<carbon-route>`. This nesting
-allows the inner `<carbon-route>` to match on urls like `localhost:8080/store/Amsterdam`
+What is going on here? We pass on the `tail` from the upper-level `<app-route>`
+and pass it on via the `<store-page>` to the sub level `<app-route>`. This nesting
+allows the inner `<app-route>` to match on urls like `localhost:8080/store/Amsterdam`
 or `localhost:8080/store/new-york`. We can retrieve these values in the `storeData.store`
 which are `Amsterdam` and `new-york` respectively.
 
@@ -197,16 +197,16 @@ Our dropdownmenu:
 
 As you can see we bind the `selected` property of the inner `paper-listbox` to
 `{{category.category}}`, but how is this used? This value is used in a new
-`<carbon-route>`!
+`<app-route>`!
 
 ```html
-<carbon-route route="{{subRoute}}" pattern="/:category"
-              data="{{category}}"></carbon-route>
+<app-route route="{{subRoute}}" pattern="/:category"
+              data="{{category}}"></app-route>
 ```
-The `{{subRoute}}` is bound to the `tail` of the previously defined `<carbon-route>`
+The `{{subRoute}}` is bound to the `tail` of the previously defined `<app-route>`
 of the `store-page`. When we click an item in the dropdownmenu, `{{category.category}}`
 is updated to the corresponding `data-category` value. However, the beauty of
-the data-binding system is that it is also reflected back the to `<carbon-route>`!
+the data-binding system is that it is also reflected back the to `<app-route>`!
 That route uses the same (two-way) binding and updates the url to for example
 `localhost:8080/store/Amsterdam/food`.
 
@@ -218,11 +218,11 @@ That route uses the same (two-way) binding and updates the url to for example
 The last topic of this blog concerns the linking to pages. Since an element does
 not know what the current url is, it is not possible to statically define the
 `href` of the corresponding link. This problem took me quite some time to figure
-out, but in the end I discovered another neat feature of the `<carbon-route>`.
+out, but in the end I discovered another neat feature of the `<app-route>`.
 
 All `route` properties expose a field `prefix`. This `prefix` contains the full url
-as matched by parent `<carbon-route>` or the base `<carbon-location>`. In other words:
-If I define a `<carbon-route>` which matches on `/:store` and I load
+as matched by parent `<app-route>` or the base `<app-location>`. In other words:
+If I define a `<app-route>` which matches on `/:store` and I load
 `localhost:8080/store/Amsterdam/food`, the prefix will be `localhost:8080/store`
 and the tail will be `/food`. If you want to link to the Amsterdam store page inside
 `<store-page>` you can define the link as such:
@@ -243,6 +243,6 @@ This neat little trick allows you to modify urls in parent elements without brea
 the internal routing structure of child elements such as `<route-page>`.
 
 ## 4. Conclusion
-This blog post roughly describes my experience with the new `<carbon-route>`.
+This blog post roughly describes my experience with the new `<app-route>`.
 There are a lot of other possible usages, which I might address in a later post.
 If you have any question, feel free to contact me on the Polymer Slack (`@timvdlippe`) or on Twitter (https://twitter.com/TimvdLippe).
