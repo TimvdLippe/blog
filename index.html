@@ -11,6 +11,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <!doctype html>
 <html lang="en">
 <head>
+  <base href="/" />
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 
@@ -22,15 +23,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="manifest" href="/manifest.json">
 
   <script>
+    (function(window, document, navigator) {
+      // Functionality copied from
+      // https://github.com/PolymerElements/platinum-https-redirect/blob/6ad1a02af72f93de7b2d647dab96f5f2f64ed7d6/platinum-https-redirect.html#L46-L59
+      function _isLocalhost(hostname) {
+        // !! coerces the logical expression to evaluate to the values true or false.
+        return !!(hostname === 'localhost' ||
+                  // [::1] is the IPv6 localhost address.
+                  hostname === '[::1]' ||
+                  // 127.0.0.1/8 is considered localhost for IPv4.
+                  hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/));
+      }
+      if (window.location.protocol === 'http:' && !_isLocalhost(window.location.hostname)) {
+        // Redirect to https: if we're currently using http: and we're not on localhost.
+        window.location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
+      }
 
-    // setup Polymer options
-    window.Polymer = {lazyRegister: true, dom: 'shadow'};
+      // setup Polymer options
+      window.Polymer = {lazyRegister: true, dom: 'shadow'};
 
-    // load webcomponents polyfills
-    (function() {
+      // load webcomponents polyfills
       if ('registerElement' in document
-          && 'import' in document.createElement('link')
-          && 'content' in document.createElement('template')) {
+      && 'import' in document.createElement('link')
+      && 'content' in document.createElement('template')) {
         // browser has web components
       } else {
         // polyfill web components
@@ -38,18 +53,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         e.src = '/bower_components/webcomponentsjs/webcomponents-lite.min.js';
         document.body.appendChild(e);
       }
-    })();
 
-    // load pre-caching service worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/service-worker.js');
-      });
-    }
-
+      // load pre-caching service worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/service-worker.js');
+        });
+      }
+    })(window, document, navigator);
   </script>
 
-  <link rel="import" href="/src/my-app.html">
+  <link rel="import" href="src/my-app.html">
 
   <style>
 
