@@ -4,14 +4,7 @@
 <dom-module id="b1-carbon-route">
   <template>
     <style include="prism-styles"></style>
-    <style>
-      :host {
-        display: block;
-      }
-      pre {
-        overflow-x: auto;
-      }
-    </style>
+    <style>:host{display:block;}pre{overflow-x:auto;}</style>
     <marked-element>
       <div class="markdown-html"></div>
       <script type="text/markdown">
@@ -44,7 +37,7 @@
       * In `index.html`
       ```html
         <template is="dom-bind" id="app">
-          <iron-pages attr-for-selected="data-route" selected="{{route}}">
+          <iron-pages attr-for-selected="data-route" selected="&#123;&#123;route&#125;&#125;">
             ...
             <section data-route="store">
             </section>
@@ -73,7 +66,7 @@
       * In `index.html`
       ```html
         <section data-route="store-info">
-          <user-element params="{{params}}"></user-element>
+          <user-element params="&#123;&#123;params&#125;&#125;"></user-element>
         </section>
       ```
 
@@ -108,11 +101,11 @@
       </head>
       <body>
         <template is="dom-bind" id="app">
-          <app-location route="{{route}}"></app-location>
-          <app-route route="{{route}}" pattern="/:page"
-                        data="{{routeData}}"></app-route>
+          <app-location route="&#123;&#123;route&#125;&#125;"></app-location>
+          <app-route route="&#123;&#123;route&#125;&#125;" pattern="/:page"
+                        data="&#123;&#123;routeData&#125;&#125;"></app-route>
 
-          <iron-pages selected="[[routeData.page]]"
+          <iron-pages selected="&#91;&#91;routeData.page&#93;&#93;"
                       attr-for-selected="data-route"
                       fallback-selection="404">
             <section data-route="">
@@ -164,18 +157,18 @@
 
       We update `<app-route>` to
       ```html
-      <app-route route="{{route}}" pattern="/:page" data="{{routeData}}"
-                    tail="{{tail}}"></app-route>
+      <app-route route="&#123;&#123;route&#125;&#125;" pattern="/:page" data="&#123;&#123;routeData&#125;&#125;"
+                    tail="&#123;&#123;tail&#125;&#125;"></app-route>
       ```
       and we update the `<store-page>` to
       ```html
-      <store-page data-route="store" route="{{tail}}"></store-page>
+      <store-page data-route="store" route="&#123;&#123;tail&#125;&#125;"></store-page>
       ```
 
       Inside `<store-page>` we define the following `<app-route>`
       ```html
-      <app-route route="{{route}}" pattern="/:store"
-                    data="{{storeData}}" tail="{{subRoute}}"></app-route>
+      <app-route route="&#123;&#123;route&#125;&#125;" pattern="/:store"
+                    data="&#123;&#123;storeData&#125;&#125;" tail="&#123;&#123;subRoute&#125;&#125;"></app-route>
       ```
 
       What is going on here? We pass on the `tail` from the upper-level `<app-route>`
@@ -203,7 +196,7 @@
       Our dropdownmenu:
       ```html
       <paper-dropdown-menu label="Choose a category">
-        <paper-listbox class="dropdown-content" selected="{{category.category}}"
+        <paper-listbox class="dropdown-content" selected="&#123;&#123;category.category&#125;&#125;"
                        attr-for-selected="data-category">
           <paper-item data-category="clothing">Clothing</paper-item>
           <paper-item data-category="food">Food</paper-item>
@@ -213,15 +206,15 @@
       ```
 
       As you can see we bind the `selected` property of the inner `paper-listbox` to
-      `{{category.category}}`, but how is this used? This value is used in a new
+      `&#123;&#123;category.category&#125;&#125;`, but how is this used? This value is used in a new
       `<app-route>`!
 
       ```html
-      <app-route route="{{subRoute}}" pattern="/:category"
-                    data="{{category}}"></app-route>
+      <app-route route="&#123;&#123;subRoute&#125;&#125;" pattern="/:category"
+                    data="&#123;&#123;category&#125;&#125;"></app-route>
       ```
-      The `{{subRoute}}` is bound to the `tail` of the previously defined `<app-route>`
-      of the `store-page`. When we click an item in the dropdownmenu, `{{category.category}}`
+      The `&#123;&#123;subRoute&#125;&#125;` is bound to the `tail` of the previously defined `<app-route>`
+      of the `store-page`. When we click an item in the dropdownmenu, `&#123;&#123;category.category&#125;&#125;`
       is updated to the corresponding `data-category` value. However, the beauty of
       the data-binding system is that it is also reflected back the to `<app-route>`!
       That route uses the same (two-way) binding and updates the url to for example
@@ -245,7 +238,7 @@
       `<store-page>` you can define the link as such:
 
       ```html
-      <a href$="[[route.prefix]]/Amsterdam">Amsterdam</a>"
+      <a href$="&#91;&#91;route.prefix&#93;&#93;/Amsterdam">Amsterdam</a>
       ```
 
       Moreover, if you have a list of stores
@@ -253,7 +246,7 @@
       and you use a `<dom-repeat>` to enumerate through the list, you can define the link as
 
       ```html
-      <a href$="[[route.prefix]]/[[item.location]]">Amsterdam</a>"
+      <a href$="&#91;&#91;route.prefix&#93;&#93;/&#91;&#91;item.location&#93;&#93;">Amsterdam</a>
       ```
 
       This neat little trick allows you to modify urls in parent elements without breaking
@@ -266,9 +259,5 @@
       </script>
     </marked-element>
   </template>
-  <script>
-    Polymer({
-      is: 'b1-carbon-route'
-    });
-  </script>
+  <script>Polymer({is:"b1-carbon-route"});</script>
 </dom-module>
